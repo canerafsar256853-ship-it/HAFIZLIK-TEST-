@@ -23,7 +23,7 @@
         .rating-container { display: none; margin-top: 15px; }
         .rating-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .rate-btn { padding: 10px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; font-size: 13px; text-align: center; }
-        select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        select, input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
         th { background-color: #f1f5f9; color: #334155; }
@@ -99,6 +99,37 @@
                 </tbody>
             </table>
             <button class="btn btn-danger" onclick="puanlariSifirla()">Puanları ve Tabloyu Sıfırla</button>
+        </div>
+
+        <!-- 💬 ÖNERİ VE DEĞERLENDİRME FORMU -->
+        <div class="card">
+            <h3 style="text-align: center; color: var(--primary);">💬 Görüş, Öneri ve Değerlendirme</h3>
+            <p style="text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 15px;">Bu sistem hakkındaki fikirlerinizi ve önerilerinizi bize iletebilirsiniz.</p>
+            
+            <form action="https://formspree.io/f/xkjjpjvd" method="POST">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; font-size: 14px;">Genel Memnuniyetiniz:</label>
+                    <select name="memnuniyet">
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5 - Mükemmel)</option>
+                        <option value="4">⭐⭐⭐⭐ (4/5 - Çok İyi)</option>
+                        <option value="3">⭐⭐⭐ (3/5 - Orta)</option>
+                        <option value="2">⭐⭐ (2/5 - Geliştirilmeli)</option>
+                        <option value="1">⭐ (1/5 - Zayıf)</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; font-size: 14px;">Adınız / Unvanınız (İsteğe Bağlı):</label>
+                    <input type="text" name="isim" placeholder="Örn: Ahmet Hoca / Öğrenci">
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; font-size: 14px;">Öneri veya Notunuz:</label>
+                    <textarea name="mesaj" rows="3" required placeholder="Görüşlerinizi buraya yazabilirsiniz..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" style="background-color: var(--primary);">Mesajı Gönder</button>
+            </form>
         </div>
     </div>
 
