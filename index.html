@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kur'an Kursu Sınav ve Takip Paneli</title>
+    <!-- Amiri Fontu (Arapça Hattı) -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #0f766e; 
+            --primary-light: #14b8a6; 
+            --bg-color: #f8fafc; 
+            --card-bg: #ffffff; 
+            --text-color: #334155; 
+            --accent: #f59e0b; 
+            --border-color: #cbd5e1;
+            --ayah-bg: #f1f5f9;
+            --ayah-text: #0f172a;
+        }
+
+        [data-theme="dark"] {
+            --primary: #14b8a6;
+            --primary-light: #2dd4bf;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --accent: #fbbf24;
+            --border-color: #334155;
+            --ayah-bg: #090d16;
+            --ayah-text: #f8fafc;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
+        
+        /* Header ve Buton Düzeni */
+        header { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 15px 20px; }
+        .header-container { max-width: 650px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+        .header-title h1 { margin: 0; font-size: 20px; }
+        .header-title p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.9; }
+        
+        .top-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .top-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: 0.2s; }
+        .top-btn:hover { background: rgba(255, 255, 255, 0.35); }
+        .top-btn-danger { background: rgba(220, 38, 38, 0.5); border-color: rgba(220, 38, 38, 0.7); }
+        .top-btn-danger:hover { background: rgba(220, 38, 38, 0.8); }
+
+        .container { padding: 20px; max-width: 650px; margin: 0 auto; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; transition: background 0.3s; }
+        button.btn { background-color: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 10px; }
+        button.btn-danger { background-color: #dc2626; }
+        button.btn-sm { padding: 5px 10px; font-size: 12px; width: auto; margin: 0; border-radius: 6px; }
+        button.btn-success { background-color: #16a34a; color: white; border: none; cursor: pointer; }
+        
+        .ayah-info { font-size: 13px; color: var(--primary-light); font-weight: bold; margin-bottom: 8px; text-align: center; }
+        .ayah-box { background: var(--ayah-bg); padding: 20px; border-radius: 10px; margin: 10px 0; font-size: 25px; text-align: center; font-weight: bold; direction: rtl; font-family: 'Amiri', serif; color: var(--ayah-text); line-height: 2.2; }
+        .hidden-answer { display: none; background: var(--ayah-bg); border: 1px dashed var(--primary); padding: 15px; border-radius: 10px; margin-top: 15px; direction: rtl; font-family: 'Amiri', serif; font-size: 23px; text-align: right; line-height: 2.2; max-height: 250px; overflow-y: auto; color: var(--ayah-text); }
+        .score-board { background: var(--ayah-bg); border: 1px solid var(--primary-light); padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 14px; }
+        
+        .rating-container { display: none; margin-top: 15px; }
+        .rating-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .rate-btn { padding: 10px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; font-size: 13px; text-align: center; }
+        
+        select, input, textarea { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; font-family: inherit; background-color: var(--card-bg); color: var(--text-color); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
+        th { background-color: var(--ayah-bg); color: var(--text-color); }
+        .loader { display: none; text-align: center; font-weight: bold; color: var(--primary); margin: 10px 0; }
+
+        .tab-menu { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: var(--ayah-bg); border: 1px solid var(--border-color); border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--text-color); font-size: 12px; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Modal Tasarımları */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
+        .modal-content { background-color: var(--card-bg); color: var(--text-color); padding: 20px; border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative; }
+        .close-btn { position: absolute; top: 12px; right: 18px; font-size: 24px; font-weight: bold; color: #aaa; cursor: pointer; }
+        
+        /* Cüz Analiz Tablosu Grid */
+        .cuz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: 10px; }
+        .cuz-card { background: var(--ayah-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; text-align: center; font-size: 12px; }
+        .cuz-card strong { display: block; font-size: 13px; color: var(--primary); }
+        
+        /* Kur'an Okuyucu Tasarımı */
+        .quran-reader-box { background: var(--ayah-bg); padding: 15px; border-radius: 10px; direction: rtl; font-family: 'Amiri', serif; font-size: 22px; line-height: 2.3; text-align: right; margin-top: 10px; color: var(--ayah-text); max-height: 50vh; overflow-y: auto; }
+        .quran-ayah-item { border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 10px; }
+        .quran-meal { font-family: 'Segoe UI', sans-serif; font-size: 13px; direction: ltr; text-align: left; color: var(--text-color); opacity: 0.8; margin-top: 4px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>📖 Kur'an Kursu Sınav Paneli</h1>
+                <p>Hatasız Medine Hattı & Öğrenci Yönetimi</p>
+            </div>
+            <div class="top-actions">
+                <button class="top-btn" onclick="modalAc('kuranModal')">📖 Kur'an-ı Kerim</button>
+                <button class="top-btn" onclick="geceModuDegis()" id="geceBtn">🌙 Gece</button>
+                <button class="top-btn" onclick="modalAc('onerModal')">💬 Öneri</button>
+                <button class="top-btn top-btn-danger" onclick="puanlariSifirla()">Sıfırla</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- 1. ÖĞRENCİ SEÇİM KARTI -->
+        <div class="card">
+            <h3 style="margin-top:0; color:var(--primary);">👤 Öğrenci Seçimi</h3>
+            <div style="display: flex; gap: 8px;">
+                <select id="ogrenciSecim" onchange="ogrenciDegisti()">
+                    <option value="">-- Önce Öğrenci Seçin --</option>
+                </select>
+                <button class="btn btn-sm" onclick="modalAc('ogrenciEkleModal')" style="margin-top:6px;">+ Yeni</button>
+            </div>
+            <div id="aktifOgrenciBilgi" style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Aktif öğrenci seçilmedi.</div>
+        </div>
+
+        <!-- 2. SINAV KARTI -->
+        <div class="card" id="sinavAlani" style="opacity: 0.5; pointer-events: none;">
+            <div class="score-board" id="skorBilgi">
+                Sorulan Soru: 0 | Ortalama Başarı: 0 / 100
+            </div>
+
+            <label>Sayfa Konumu Seçimi:</label>
+            <select id="konumSecim">
+                <option value="rastgele">🎲 Karışık (Tüm Kur'an)</option>
+                <option value="bas">📌 Sayfa Başı Ayetleri</option>
+                <option value="orta">📖 Sayfa Ortası Ayetleri</option>
+                <option value="son">🏁 Sayfa Sonu Ayetleri</option>
+            </select>
+            
+            <button class="btn" onclick="rastgeleAyetGetir()">Soru Ayeti Getir</button>
+            <div class="loader" id="loading">Ayetler yükleniyor...</div>
+            
+            <div class="ayah-info" id="bilgiAyet">Başlamak için öğrenci seçip butona basın.</div>
+            <div class="ayah-box" id="soruAyet">...</div>
+            
+            <button class="btn" style="background-color: var(--accent); color: #000;" id="devamBtn" onclick="cevabiGoster()" style="display:none;">Devamını Göster</button>
+            
+            <div class="hidden-answer" id="gizliCevap">
+                <div><strong>Devamındaki Ayetler:</strong></div>
+                <div id="cevapMetin">-</div>
+            </div>
+
+            <!-- PUANLAMA BUTONLARI -->
+            <div class="rating-container" id="puanlamaAlani">
+                <p style="text-align:center; font-weight:bold; margin-bottom:5px;">Öğrencinin Okuyuş Notunu Seç:</p>
+                <div class="rating-grid">
+                    <button class="rate-btn" style="background:#dc2626;" onclick="puanVer(0, 'Okuyamadı (0)')">Okuyamadı (0)</button>
+                    <button class="rate-btn" style="background:#ea580c;" onclick="puanVer(20, 'Çok Zayıf (20)')">Çok Zayıf (20)</button>
+                    <button class="rate-btn" style="background:#d97706;" onclick="puanVer(40, 'Zayıf (40)')">Zayıf (40)</button>
+                    <button class="rate-btn" style="background:#ca8a04;" onclick="puanVer(60, 'Orta (60)')">Orta (60)</button>
+                    <button class="rate-btn" style="background:#2563eb;" onclick="puanVer(80, 'İyi (80)')">İyi (80)</button>
+                    <button class="rate-btn" style="background:#16a34a;" onclick="puanVer(100, 'Sorunsuz (100)')">Sorunsuz (100)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SEKMELİ GEÇMİŞ VE İSTATİSTİK KARTI -->
+        <div class="card" id="detayAlani" style="opacity: 0.5; pointer-events: none;">
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="tabDegis('gecmis')">📊 Geçmiş</button>
+                <button class="tab-btn" onclick="tabDegis('zayiflar')">⚠️ Zorlanılanlar (<span id="zayifSayi">0</span>)</button>
+                <button class="tab-btn" onclick="tabDegis('istatistik')">📈 Cüz Başarı Analizi</button>
+            </div>
+
+            <!-- Sınav Geçmişi Sekmesi -->
+            <div id="tab-gecmis" class="tab-content active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Sure / Ayet</th>
+                            <th>Durum</th>
+                            <th>Puan</th>
+                            <th>Sil</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gecmisTablosu">
+                        <tr><td colspan="5" style="opacity: 0.7;">Henüz sınav kaydı yok.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Zorlanılan Ayetler Sekmesi -->
+            <div id="tab-zayiflar" class="tab-content">
+                <p style="font-size:12px; opacity: 0.8; margin-top:0;">40 ve altı puan alınan ayetler burada listelenir. Tekrar sorulduğunda 40'ın üzerinde puan alınırsa otomatik kaldırılır.</p>
+                <div id="zayiflarListesi" style="max-height: 250px; overflow-y: auto;">
+                    <p style="opacity: 0.7; text-align:center;">Zorlanılan ayet bulunmuyor.</p>
+                </div>
+            </div>
+
+            <!-- Cüz İstatistik Sekmesi -->
+            <div id="tab-istatistik" class="tab-content">
+                <p style="font-size:12px; opacity: 0.8; margin-top:0;">1-30 Cüzlerin sınav ortalamalarına göre hesaplanan yüzdelik başarı durumları:</p>
+                <div id="cuzAnalizGrid" class="cuz-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KUR'AN-I KERİM OKUMA MODALI (Diyanet Uyumlu) -->
+    <div id="kuranModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-btn" onclick="modalKapat('kuranModal')">&times;</span>
+            <h3 style="color: var(--primary); margin-top:0; text-align:center;">📖 Kur'an-ı Kerim Okuma</h3>
+            
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <select id="kuranCuzSec" onchange="kuranCuzYukle()">
+                    <option value="">-- Cüz Seçin --</option>
+                </select>
+                <select id="kuranSureSec" onchange="kuranSureYukle()">
+                    <option value="">-- Sure Seçin --</option>
+                </select>
+                <input type="number" id="kuranSayfaInput" min="1" max="604" placeholder="Sayfa No (1-604)" style="width:140px; margin:0;" onchange="kuranSayfaYukle()">
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <button class="btn btn-sm" onclick="sayfaDegistir(-1)">⬅️ Önceki Sayfa</button>
+                <span id="kuranSayfaBilgi" style="font-weight:bold; font-size:13px;">Sayfa: 1</span>
+                <button class="btn btn-sm" onclick="sayfaDegistir(1)">Sonraki Sayfa ➡️</button>
+            </div>
+
+            <div class="loader" id="kuranLoading">Kur'an Ayetleri Yükleniyor...</div>
+            <div id="kuranOkumaAlani" class="quran-reader-box">
+                <p style="text-align:center; font-size:14px; opacity:0.7;">Yukarıdan Cüz, Sure veya Sayfa seçerek okumaya başlayabilirsiniz.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- YENİ ÖĞRENCİ EKLEME MODALI -->
+    <div id="ogrenciEkleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="modalKapat('ogrenciEkleModal')">&times;</span>
+            <h3 style="color: var(--primary); margin-top:0;">Yeni Öğrenci Ekle</h3>
+            <input type="text" id="yeniOgrenciAdi" placeholder="Öğrencinin Adı Soyadı">
+            <button class="btn" onclick="ogrenciEkle()">Kaydet</button>
+        </div>
+    </div>
+
+    <!-- ÖNERİ MODALI -->
+    <div id="onerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="modalKapat('onerModal')">&times;</span>
+            <h3 style="text-align: center; color: var(--primary); margin-top: 0;">💬 Görüş ve Öneri</h3>
+            <form action="https://formspree.io/f/xkjjpjvd" method="POST">
+                <select name="memnuniyet">
+                    <option value="5">⭐⭐⭐⭐⭐ Mükemmel</option>
+                    <option value="4">⭐⭐⭐⭐ Çok İyi</option>
+                    <option value="3">⭐⭐⭐ Orta</option>
+                </select>
+                <input type="text" name="isim" placeholder="Adınız (İsteğe Bağlı)">
+                <textarea name="mesaj" rows="3" required placeholder="Görüşlerinizi yazın..."></textarea>
+                <button type="submit" class="btn">Gönder</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let veritabani = JSON.parse(localStorage.getItem("kuranSınavDB")) || { ogrenciler: [] };
+        let aktifOgrenciIndex = null;
+        let aktifSoruData = null;
+        let mevcutKuranSayfa = 1;
+
+        // Tema Yönetimi
+        let kaydedilenTema = localStorage.getItem("kuranTema") || "light";
+        document.documentElement.setAttribute("data-theme", kaydedilenTema);
+        document.getElementById("geceBtn").innerText = kaydedilenTema === "dark" ? "☀️ Gündüz" : "🌙 Gece";
+
+        function geceModuDegis() {
+            let simdikiTema = document.documentElement.getAttribute("data-theme");
+            let yeniTema = simdikiTema === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", yeniTema);
+            localStorage.setItem("kuranTema", yeniTema);
+            document.getElementById("geceBtn").innerText = yeniTema === "dark" ? "☀️ Gündüz" : "🌙 Gece";
+        }
+
+        function veriKaydet() {
+            localStorage.setItem("kuranSınavDB", JSON.stringify(veritabani));
+        }
+
+        function ogrenciListesiniGuncelle() {
+            const select = document.getElementById("ogrenciSecim");
+            select.innerHTML = '<option value="">-- Öğrenci Seçin --</option>';
+            veritabani.ogrenciler.forEach((ogrenci, index) => {
+                select.innerHTML += `<option value="${index}">${ogrenci.ad}</option>`;
+            });
+            if (aktifOgrenciIndex !== null && veritabani.ogrenciler[aktifOgrenciIndex]) {
+                select.value = aktifOgrenciIndex;
+            }
+        }
+        ogrenciListesiniGuncelle();
+
+        function ogrenciEkle() {
+            const ad = document.getElementById("yeniOgrenciAdi").value.trim();
+            if(!ad) return alert("Lütfen isim girin!");
+            
+            veritabani.ogrenciler.push({ ad: ad, gecmis: [], zayiflar: [] });
+            veriKaydet();
+            ogrenciListesiniGuncelle();
+            document.getElementById("yeniOgrenciAdi").value = "";
+            modalKapat('ogrenciEkleModal');
+            
+            aktifOgrenciIndex = veritabani.ogrenciler.length - 1;
+            document.getElementById("ogrenciSecim").value = aktifOgrenciIndex;
+            ogrenciDegisti();
+        }
+
+        function ogrenciDegisti() {
+            const val = document.getElementById("ogrenciSecim").value;
+            const sinavAlani = document.getElementById("sinavAlani");
+            const detayAlani = document.getElementById("detayAlani");
+            
+            if (val === "") {
+                aktifOgrenciIndex = null;
+                sinavAlani.style.opacity = "0.5";
+                sinavAlani.style.pointerEvents = "none";
+                detayAlani.style.opacity = "0.5";
+                detayAlani.style.pointerEvents = "none";
+                document.getElementById("aktifOgrenciBilgi").innerText = "Aktif öğrenci seçilmedi.";
+            } else {
+                aktifOgrenciIndex = parseInt(val);
+                sinavAlani.style.opacity = "1";
+                sinavAlani.style.pointerEvents = "auto";
+                detayAlani.style.opacity = "1";
+                detayAlani.style.pointerEvents = "auto";
+                document.getElementById("aktifOgrenciBilgi").innerText = `Seçili Öğrenci: ${veritabani.ogrenciler[aktifOgrenciIndex].ad}`;
+                ekranlariGuncelle();
+            }
+        }
+
+        function tabDegis(tabAdi) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabAdi}`).classList.add('active');
+        }
+
+        function modalAc(id) { 
+          
